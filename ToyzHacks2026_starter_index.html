@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToyzHacks 2026 — Smart Glasses Power Circuit</title>
+  <style>
+    /* ── Base ──────────────────────────────────────────────────────────────── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #060D18;
+      color: #F0F8FF;
+      min-height: 100vh;
+      padding: 40px 16px 80px;
+    }
+    h1 { font-size: 24px; font-weight: 800; color: #F0F8FF; margin-bottom: 4px; }
+    h2 { font-size: 18px; font-weight: 700; color: #00B4C8; margin: 32px 0 12px; }
+    h3 { font-size: 14px; font-weight: 700; color: #C8D8E0; margin-bottom: 8px; }
+    p  { font-size: 14px; color: #8BA4B8; line-height: 1.7; }
+
+    .container { max-width: 720px; margin: 0 auto; }
+
+    /* ── Header ────────────────────────────────────────────────────────────── */
+    .eyebrow {
+      font-size: 11px; letter-spacing: 3px; color: #00B4C8;
+      font-weight: 700; margin-bottom: 8px;
+    }
+    .tagline { font-size: 14px; color: #8BA4B8; margin-bottom: 32px; line-height: 1.6; }
+
+    /* ── Narrative panel ───────────────────────────────────────────────────── */
+    .narrative {
+      background: rgba(0,180,200,0.06);
+      border: 1px solid rgba(0,180,200,0.2);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .narrative p { color: #C8D8E0; }
+
+    /* ── Spec card ─────────────────────────────────────────────────────────── */
+    .spec-card {
+      background: #0D1B2A;
+      border: 1px solid rgba(0,180,200,0.25);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .spec-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .spec-card td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .spec-card td:first-child { color: #8BA4B8; width: 45%; }
+    .spec-card td:last-child { color: #F0F8FF; font-weight: 600; }
+
+    /* ── Task boxes ────────────────────────────────────────────────────────── */
+    .task {
+      background: #0D1B2A;
+      border: 2px solid #1E3A4A;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .task.complete { border-color: #4ADE80; }
+    .task-label {
+      display: inline-block;
+      font-size: 10px; letter-spacing: 2px; font-weight: 700;
+      color: #00B4C8; margin-bottom: 8px;
+    }
+    .task p { margin-bottom: 14px; }
+
+    /* ── Inputs ────────────────────────────────────────────────────────────── */
+    input[type="number"], input[type="text"], select {
+      width: 100%; padding: 10px 14px;
+      background: #0A1628;
+      border: 1px solid rgba(0,180,200,0.3);
+      border-radius: 8px;
+      color: #F0F8FF; font-size: 14px;
+      outline: none; margin-bottom: 10px;
+    }
+    input:focus, select:focus { border-color: #00B4C8; }
+    label { font-size: 12px; color: #8BA4B8; font-weight: 700;
+            letter-spacing: 1px; display: block; margin-bottom: 4px; }
+
+    /* ── Slider ────────────────────────────────────────────────────────────── */
+    .slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    input[type="range"] { flex: 1; accent-color: #00B4C8; }
+    .slider-val { font-size: 14px; font-weight: 700; color: #00B4C8;
+                  min-width: 64px; text-align: right; }
+
+    /* ── Oscilloscope ──────────────────────────────────────────────────────── */
+    canvas {
+      width: 100%; height: 160px;
+      background: #030810;
+      border: 1px solid rgba(0,180,200,0.2);
+      border-radius: 8px;
+      display: block; margin-bottom: 12px;
+    }
+
+    /* ── Feedback ──────────────────────────────────────────────────────────── */
+    .feedback {
+      font-size: 13px; font-weight: 700; padding: 10px 14px;
+      border-radius: 8px; margin-top: 8px; display: none;
+    }
+    .feedback.correct { background: rgba(74,222,128,0.12); color: #4ADE80;
+                         border: 1px solid rgba(74,222,128,0.3); display: block; }
+    .feedback.wrong   { background: rgba(239,68,68,0.12);  color: #EF4444;
+                         border: 1px solid rgba(239,68,68,0.3);  display: block; }
+    .feedback.hint    { background: rgba(245,158,11,0.1);  color: #F59E0B;
+                         border: 1px solid rgba(245,158,11,0.3); display: block; }
+
+    /* ── Buttons ───────────────────────────────────────────────────────────── */
+    button {
+      padding: 10px 20px; font-size: 13px; font-weight: 700;
+      letter-spacing: 1px; border: none; border-radius: 8px; cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #007A8A, #00B4C8);
+      color: #0A1628;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid rgba(0,180,200,0.4);
+      color: #00B4C8;
+      margin-left: 8px;
+    }
+
+    /* ── Progress bar ──────────────────────────────────────────────────────── */
+    .progress-bar {
+      height: 4px; background: #0D1B2A;
+      border-radius: 2px; margin-bottom: 32px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #007A8A, #00B4C8);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    /* ── Submit card ───────────────────────────────────────────────────────── */
+    .submit-card {
+      background: #0D1B2A;
+      border: 2px solid rgba(0,180,200,0.3);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-top: 40px;
+      text-align: center;
+    }
+    .submit-card h2 { text-align: center; }
+    .submit-card p  { max-width: 480px; margin: 0 auto 20px; }
+    .submit-card a  {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #007A8A, #00B4C8);
+      color: #0A1628; font-weight: 800; font-size: 13px;
+      letter-spacing: 1px; border-radius: 8px; text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+  <p class="eyebrow">TOYZHACKS 2026 · TIER 1 · BROWSER CHALLENGE</p>
+  <h1>Smart Glasses Power Circuit</h1>
+  <p class="tagline">
+    Build an interactive simulation of Mission 1's power management circuit.
+    Submissions due <strong style="color:#00B4C8">April 9</strong> — leaderboard goes live during
+    CMU Carnival Weekend April 10–11.
+  </p>
+
+  <!-- progress -->
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <!-- ── MISSION NARRATIVE ─────────────────────────────────────────────── -->
+  <div class="narrative">
+    <h3>🛰️ Mission Briefing — Space Station, 2031</h3>
+    <p>
+      The smart glasses that run your AR heads-up display are dead. No power. Without them, you can't
+      navigate the station or complete repairs. Your task: rebuild the power management circuit from
+      salvaged components so the glasses can boot. You have a LiPo battery, a PMIC, and a decoupling
+      capacitor. Make them work together.
+    </p>
+  </div>
+
+  <!-- ── CHAPTER 1: THEORY ─────────────────────────────────────────────── -->
+  <h2>Chapter 1 — The Spec</h2>
+  <p style="margin-bottom:16px">
+    Before you build anything, read the circuit spec. The PMIC needs stable 3.3V output.
+    The LiPo delivers 3.7V nominal. A decoupling capacitor smooths the voltage rail.
+  </p>
+
+  <div class="spec-card">
+    <h3>Circuit Parameters</h3>
+    <table>
+      <tr><td>Battery</td><td>LiPo 3.7V nominal, 1000mAh</td></tr>
+      <tr><td>PMIC output voltage</td><td>3.3V regulated</td></tr>
+      <tr><td>Peak current draw</td><td>500mA (display on)</td></tr>
+      <tr><td>Voltage ripple target</td><td>≤ 50mV</td></tr>
+      <tr><td>Formula</td><td>C = I · Δt / ΔV</td></tr>
+      <tr><td>Switching period (Δt)</td><td>1 µs (1 MHz PMIC)</td></tr>
+    </table>
+  </div>
+
+  <!-- ── CHAPTER 2: PREDICTION GATE ───────────────────────────────────── -->
+  <h2>Chapter 2 — Prediction Gate</h2>
+  <p style="margin-bottom:16px">
+    Calculate the minimum decoupling capacitance before the simulation unlocks.
+    Use: <strong style="color:#00B4C8">C = I · Δt / ΔV</strong>
+  </p>
+
+  <div class="task" id="taskPrediction">
+    <span class="task-label">TASK 1 OF 3 · PREDICTION</span>
+    <p>
+      With I = 500mA, Δt = 1µs, and ΔV = 50mV — what is the minimum capacitance in µF?
+    </p>
+    <label for="predictionInput">Your answer (µF)</label>
+    <input type="number" id="predictionInput" placeholder="Enter calculated value..." step="0.1" />
+    <button class="btn-primary" onclick="checkPrediction()">SUBMIT PREDICTION</button>
+    <div class="feedback" id="predictionFeedback"></div>
+  </div>
+
+  <!-- ── CHAPTER 3: COMPONENT PICKER (unlocks after prediction) ────────── -->
+  <h2>Chapter 3 — Pick Your Capacitor</h2>
+  <p style="margin-bottom:16px" id="pickerIntro" style="opacity:0.4">
+    Select a standard capacitor value that meets or exceeds your calculated minimum.
+  </p>
+
+  <div class="task" id="taskPicker" style="opacity:0.4;pointer-events:none">
+    <span class="task-label">TASK 2 OF 3 · COMPONENT SELECTION</span>
+    <p>Choose a standard capacitor from the salvage bin. Pick the smallest value that still meets spec — over-engineering wastes mass on a space station.</p>
+    <label for="capSelect">Capacitor value</label>
+    <select id="capSelect">
+      <option value="">— select —</option>
+      <option value="1">1 µF</option>
+      <option value="4.7">4.7 µF</option>
+      <option value="10">10 µF ✓ meets spec</option>
+      <option value="47">47 µF</option>
+      <option value="100">100 µF</option>
+    </select>
+    <button class="btn-primary" onclick="checkPicker()">CONFIRM SELECTION</button>
+    <div class="feedback" id="pickerFeedback"></div>
+  </div>
+
+  <!-- ── CHAPTER 4: OSCILLOSCOPE (unlocks after picker) ───────────────── -->
+  <h2>Chapter 4 — Verify the Rail</h2>
+  <p style="margin-bottom:16px">
+    The oscilloscope shows the voltage rail. Adjust the capacitance slider and observe how ripple changes.
+    Ripple must fall below the 50mV spec line (red) for the glasses to boot.
+  </p>
+
+  <div class="task" id="taskOscillo" style="opacity:0.4;pointer-events:none">
+    <span class="task-label">TASK 3 OF 3 · VERIFICATION</span>
+
+    <div class="slider-row">
+      <label style="min-width:140px;margin:0">Capacitance (µF)</label>
+      <input type="range" id="capSlider" min="1" max="100" value="10"
+             oninput="updateOscillo()" />
+      <span class="slider-val" id="capVal">10 µF</span>
+    </div>
+
+    <canvas id="oscilloCanvas"></canvas>
+    <p id="rippleReadout" style="color:#F0F8FF;font-size:13px;margin-bottom:12px">
+      Ripple: — mV
+    </p>
+
+    <button class="btn-primary" onclick="submitVerification()">BOOT GLASSES</button>
+    <button class="btn-secondary" onclick="resetSim()">RESET</button>
+    <div class="feedback" id="oscilloFeedback"></div>
+  </div>
+
+  <!-- ── SUBMISSION INSTRUCTIONS ──────────────────────────────────────── -->
+  <div class="submit-card" id="submitCard" style="display:none">
+    <h2>🎉 Circuit Complete</h2>
+    <p>
+      The smart glasses are booting. Your power circuit is verified.<br/>
+      Now submit your work as a PR to the ToyzHacks 2026 repo.
+    </p>
+    <a href="https://github.com/ToyzElectronicsInc/ToyzHacks2026SmartGlasses"
+       target="_blank" rel="noopener noreferrer">
+      OPEN GITHUB REPO →
+    </a>
+    <p style="margin-top:16px;font-size:12px;color:#4A6275">
+      See CONTRIBUTING.md in the repo for PR format and submission checklist.
+    </p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ── State ──────────────────────────────────────────────────────────────── */
+const STATE = { predictionPassed: false, pickerPassed: false, oscilloPassed: false };
+const CORRECT_C = 10; // µF — C = 0.5A × 1e-6s / 0.05V = 10µF
+
+function updateProgress() {
+  const done = [STATE.predictionPassed, STATE.pickerPassed, STATE.oscilloPassed]
+    .filter(Boolean).length;
+  document.getElementById('progressFill').style.width = (done / 3 * 100) + '%';
+}
+
+function unlock(taskId) {
+  const el = document.getElementById(taskId);
+  el.style.opacity = '1';
+  el.style.pointerEvents = 'auto';
+}
+
+/* ── Chapter 2: Prediction ──────────────────────────────────────────────── */
+function checkPrediction() {
+  const val = parseFloat(document.getElementById('predictionInput').value);
+  const fb  = document.getElementById('predictionFeedback');
+
+  if (isNaN(val)) {
+    fb.className = 'feedback hint';
+    fb.textContent = 'Enter a number in µF.';
+    return;
+  }
+
+  // Accept 9–11 µF (±10%)
+  if (val >= 9 && val <= 11) {
+    fb.className = 'feedback correct';
+    fb.textContent = `✓ Correct — C = 0.5A × 1µs ÷ 0.05V = 10 µF. Unlocking component picker.`;
+    document.getElementById('taskPrediction').classList.add('complete');
+    STATE.predictionPassed = true;
+    unlock('taskPicker');
+    updateProgress();
+  } else if (val > 0 && val < 9) {
+    fb.className = 'feedback wrong';
+    fb.textContent = `Too low. At ${val} µF, ripple will exceed 50mV. Check your units — Δt is in µs.`;
+  } else if (val > 11) {
+    fb.className = 'feedback hint';
+    fb.textContent = `${val} µF would work electrically, but we need the minimum. Recalculate.`;
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = 'Check your calculation. C = I × Δt / ΔV.';
+  }
+}
+
+/* ── Chapter 3: Picker ──────────────────────────────────────────────────── */
+function checkPicker() {
+  const val = parseFloat(document.getElementById('capSelect').value);
+  const fb  = document.getElementById('pickerFeedback');
+
+  if (!val) {
+    fb.className = 'feedback hint';
+    fb.textContent = 'Select a capacitor value first.';
+    return;
+  }
+
+  if (val === 10) {
+    fb.className = 'feedback correct';
+    fb.textContent = '✓ 10 µF — meets spec exactly. Minimum viable. Unlocking verification.';
+    document.getElementById('taskPicker').classList.add('complete');
+    STATE.pickerPassed = true;
+    unlock('taskOscillo');
+    updateProgress();
+    updateOscillo();
+  } else if (val < CORRECT_C) {
+    fb.className = 'feedback wrong';
+    fb.textContent = `${val} µF is below spec. The glasses will reboot mid-mission. Pick a larger value.`;
+  } else {
+    fb.className = 'feedback hint';
+    fb.textContent = `${val} µF works, but we're over-engineering. Find the minimum that meets spec.`;
+  }
+}
+
+/* ── Chapter 4: Oscilloscope ────────────────────────────────────────────── */
+function updateOscillo() {
+  const C      = parseFloat(document.getElementById('capSlider').value);
+  const ripple = (10 / C) * 50; // scales from 50mV at 10µF
+  document.getElementById('capVal').textContent       = C + ' µF';
+  document.getElementById('rippleReadout').textContent = 'Ripple: ' + ripple.toFixed(1) + ' mV';
+
+  const canvas = document.getElementById('oscilloCanvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+  canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,180,200,0.08)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += W / 8) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y <= H; y += H / 4) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Spec line (50mV)
+  const specY = H * 0.25;
+  ctx.strokeStyle = '#EF4444';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath(); ctx.moveTo(0, specY); ctx.lineTo(W, specY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#EF4444';
+  ctx.font = '10px monospace';
+  ctx.fillText('50mV spec', 6, specY - 4);
+
+  // Waveform
+  const amplitude = Math.min((ripple / 100) * (H * 0.4), H * 0.45);
+  const centerY   = H * 0.5;
+  ctx.strokeStyle = ripple <= 50 ? '#4ADE80' : '#F59E0B';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let x = 0; x < W; x++) {
+    const t = (x / W) * Math.PI * 8;
+    const y = centerY + Math.sin(t) * amplitude;
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Center label
+  ctx.fillStyle = 'rgba(0,180,200,0.5)';
+  ctx.font = '10px monospace';
+  ctx.fillText('3.3V RAIL', 6, H - 8);
+}
+
+function submitVerification() {
+  const C      = parseFloat(document.getElementById('capSlider').value);
+  const ripple = (10 / C) * 50;
+  const fb     = document.getElementById('oscilloFeedback');
+
+  if (ripple <= 50) {
+    fb.className = 'feedback correct';
+    fb.textContent = `✓ Rail stable — ${ripple.toFixed(1)} mV ripple. Glasses are booting.`;
+    document.getElementById('taskOscillo').classList.add('complete');
+    STATE.oscilloPassed = true;
+    updateProgress();
+    document.getElementById('submitCard').style.display = 'block';
+    document.getElementById('submitCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = `${ripple.toFixed(1)} mV ripple exceeds spec. Increase capacitance until the waveform turns green.`;
+  }
+}
+
+function resetSim() {
+  document.getElementById('capSlider').value = '10';
+  updateOscillo();
+  document.getElementById('oscilloFeedback').className = 'feedback';
+}
+
+/* ── Init ───────────────────────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  updateOscillo();
+});
+window.addEventListener('resize', () => {
+  if (STATE.pickerPassed) updateOscillo();
+});
+</script>
+</body>
+</html>
