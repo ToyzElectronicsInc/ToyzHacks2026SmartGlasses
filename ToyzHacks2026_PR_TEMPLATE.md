@@ -23,4 +23,4 @@
 
 ---
 
-*By submitting this PR you agree your contribution may be featured on the DahVarsity leaderboard during CMU Carnival Weekend (April 8–9, 2026) and shared with our recruiter network.*
+*By submitting this PR you agree your contribution may be featured on the DahVarsity leaderboard during CMU Carnival Weekend (April 10-11, 2026) and shared with our recruiter network.*
