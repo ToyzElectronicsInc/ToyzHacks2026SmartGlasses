@@ -1,9 +1,9 @@
 # ToyzHacks 2026 — Build the Smart Glasses ⚡
 
 **April 4, 2026 · 11am–3pm ET · Virtual + Carnegie Mellon University**
-**Submissions due: April 7, 2026**
+**Submissions due: April 9, 2026**
 
-Top candidates featured on the DahVarsity leaderboard during CMU Carnival Weekend (April 8–9) — shared with our recruiter network including corporate contacts worldwide.
+Top candidates featured on the DahVarsity leaderboard during CMU Carnival Weekend (April 10–11) — shared with our recruiter network including corporate contacts worldwide.
 
 ---
 
