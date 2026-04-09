@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ToyzHacks 2026 — Smart Glasses Power Circuit</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #060D18;
+  color: #F0F8FF;
+  min-height: 100vh;
+  padding: 40px 16px 80px;
+}
+
+h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+h2 { font-size: 18px; font-weight: 700; color: #00B4C8; margin: 32px 0 12px; }
+h3 { font-size: 14px; font-weight: 700; color: #C8D8E0; margin-bottom: 8px; }
+
+.container { max-width: 720px; margin: 0 auto; }
+
+.task {
+  background: #0D1B2A;
+  border: 2px solid #1E3A4A;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+canvas {
+  width: 100%;
+  height: 160px;
+  background: #030810;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: #00B4C8;
+  color: #0A1628;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #00B4C8;
+  color: #00B4C8;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-val {
+  min-width: 60px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🚀 Smart Glasses Power Repair</h1>
+
+<div class="task">
+  <h3>Capacitance Control</h3>
+
+  <div class="slider-row">
+    <input type="range" id="capSlider" min="1" max="100" value="10" oninput="updateOscillo()" />
+    <span class="slider-val" id="capVal">10 µF</span>
+  </div>
+
+  <canvas id="oscilloCanvas"></canvas>
+  <p id="rippleReadout">Ripple: —</p>
+
+  <!-- ✅ NEW RC SECTION -->
+  <h3 style="margin-top:20px">RC Charging Curve</h3>
+  <button class="btn-secondary" onclick="startCharge()">Simulate Charging</button>
+
+  <canvas id="chargeCanvas"></canvas>
+
+  <p>Time Constant τ = <span id="tauDisplay">—</span></p>
+</div>
+
+</div>
+
+<script>
+function updateOscillo() {
+  const C = parseFloat(document.getElementById('capSlider').value);
+  const ripple = (10 / C) * 50;
+
+  document.getElementById('capVal').textContent = C + ' µF';
+  document.getElementById('rippleReadout').textContent =
+    'Ripple: ' + ripple.toFixed(1) + ' mV';
+
+  const canvas = document.getElementById('oscilloCanvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.beginPath();
+  for (let x = 0; x < W; x++) {
+    const y = H / 2 + Math.sin(x * 0.05) * (ripple);
+    x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+
+  ctx.strokeStyle = ripple <= 50 ? "green" : "orange";
+  ctx.stroke();
+}
+
+function startCharge() {
+  const canvas = document.getElementById('chargeCanvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  const C = parseFloat(document.getElementById('capSlider').value) / 10;
+  const R = 1;
+  const tau = R * C;
+
+  document.getElementById('tauDisplay').textContent = tau.toFixed(2);
+
+  let t = 0;
+
+  const interval = setInterval(() => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.beginPath();
+
+    for (let x = 0; x < W; x++) {
+      const time = (x / W) * 5;
+      const V = 1 - Math.exp(-time / tau);
+      const y = H - V * H;
+
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+
+    ctx.strokeStyle = "#4ADE80";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    t += 0.1;
+    if (t > 5) clearInterval(interval);
+  }, 30);
+}
+
+/* Init */
+window.onload = updateOscillo;
+</script>
+
+</body>
+</html>
